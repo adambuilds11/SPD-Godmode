@@ -27,6 +27,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.CheckBox;
 import com.shatteredpixel.shatteredpixeldungeon.ui.CurrencyIndicator;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 
@@ -142,6 +143,17 @@ public class WndDebugCheats extends Window {
 		cbKnockback.checked(DebugMenu.knockback);
 		cbKnockback.setRect(0, pos, width, BTN_HEIGHT);
 		add(cbKnockback);
+		pos += BTN_HEIGHT + MARGIN;
+
+		// Cheat Console button
+		RedButton btnConsole = new RedButton("Cheat Console") {
+			@Override
+			protected void onClick() {
+				GameScene.show(new WndCheatConsole());
+			}
+		};
+		btnConsole.setRect(0, pos, width, BTN_HEIGHT);
+		add(btnConsole);
 		pos += BTN_HEIGHT + MARGIN;
 
 		resize(width, (int) (pos));
