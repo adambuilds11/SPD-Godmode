@@ -114,15 +114,15 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Spear;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Sword;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WarHammer;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WornShortsword;
-import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
+import com.shatteredpixel.shatteredpixeldungeon.ui.ScrollPane;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.noosa.ui.Component;
 import com.watabou.utils.PathFinder;
 
 public class WndCheatConsole extends Window {
@@ -243,7 +243,7 @@ public class WndCheatConsole extends Window {
 
         RenderedTextBlock output = PixelScene.renderTextBlock(6);
         output.maxWidth(width - MARGIN * 2);
-        output.text("Use the buttons below to spawn items and mobs.");
+        output.text("Use the buttons below to spawn items and mobs.", width - MARGIN * 2);
         output.setPos(MARGIN, pos);
         add(output);
 
@@ -277,6 +277,28 @@ public class WndCheatConsole extends Window {
 
     private void showItemPicker() {
         final int width = PixelScene.landscape() ? WIDTH_L : WIDTH_P;
+        Component listContent = new Component();
+        float listPos = MARGIN;
+        for (final SpawnEntry entry : ITEMS) {
+            RedButton btn = new RedButton(entry.name) {
+                @Override
+                protected void onClick() {
+                    spawnItem(entry);
+                    hide();
+                }
+            };
+            btn.setRect(0, listPos, width, BTN_HEIGHT);
+            btn.multiline = true;
+            listContent.add(btn);
+            listPos += BTN_HEIGHT + MARGIN;
+        }
+        listContent.setSize(width, listPos);
+
+        // Use a fixed-height scroll window (since we can't easily make a scrollable outside Window)
+        final int fixedHeight = Math.min((int)listPos, PixelScene.uiCamera.height - 20);
+        ScrollPane scrollPane = new ScrollPane(listContent);
+        scrollPane.setRect(0, 0, width, fixedHeight);
+
         Window subWindow = new Window() {
             private float p = MARGIN;
             {
@@ -287,20 +309,9 @@ public class WndCheatConsole extends Window {
                 add(title);
                 p = title.bottom() + 2 * MARGIN;
 
-                for (final SpawnEntry entry : ITEMS) {
-                    RedButton btn = new RedButton(entry.name) {
-                        @Override
-                        protected void onClick() {
-                            spawnItem(entry);
-                            hide();
-                        }
-                    };
-                    btn.setRect(0, p, width, BTN_HEIGHT);
-                    btn.multiline = true;
-                    add(btn);
-                    p += BTN_HEIGHT + MARGIN;
-                }
-                resize(width, (int) p);
+                add(scrollPane);
+                scrollPane.setRect(0, p, width, fixedHeight);
+                resize(width, (int) (p + fixedHeight));
             }
         };
         GameScene.show(subWindow);
@@ -308,6 +319,36 @@ public class WndCheatConsole extends Window {
 
     private void showMobPicker() {
         final int width = PixelScene.landscape() ? WIDTH_L : WIDTH_P;
+        Component listContent = new Component();
+        float listPos = MARGIN;
+        for (final SpawnEntry entry : MOBS) {
+            RedButton btnFoe = new RedButton(entry.name + " [Foe]") {
+                @Override
+                protected void onClick() {
+                    spawnMob(entry, Char.Alignment.ENEMY);
+                    hide();
+                }
+            };
+            btnFoe.setRect(0, listPos, (width - MARGIN) / 2, BTN_HEIGHT);
+            listContent.add(btnFoe);
+
+            RedButton btnAlly = new RedButton(entry.name + " [Ally]") {
+                @Override
+                protected void onClick() {
+                    spawnMob(entry, Char.Alignment.ALLY);
+                    hide();
+                }
+            };
+            btnAlly.setRect(btnFoe.right() + MARGIN, listPos, (width - MARGIN) / 2, BTN_HEIGHT);
+            listContent.add(btnAlly);
+            listPos += BTN_HEIGHT + MARGIN;
+        }
+        listContent.setSize(width, listPos);
+
+        final int fixedHeight = Math.min((int)listPos, PixelScene.uiCamera.height - 20);
+        ScrollPane scrollPane = new ScrollPane(listContent);
+        scrollPane.setRect(0, 0, width, fixedHeight);
+
         Window subWindow = new Window() {
             private float p = MARGIN;
             {
@@ -318,29 +359,9 @@ public class WndCheatConsole extends Window {
                 add(title);
                 p = title.bottom() + 2 * MARGIN;
 
-                for (final SpawnEntry entry : MOBS) {
-                    RedButton btnFoe = new RedButton(entry.name + " [Foe]") {
-                        @Override
-                        protected void onClick() {
-                            spawnMob(entry, Char.Alignment.ENEMY);
-                            hide();
-                        }
-                    };
-                    btnFoe.setRect(0, p, (width - MARGIN) / 2, BTN_HEIGHT);
-                    add(btnFoe);
-
-                    RedButton btnAlly = new RedButton(entry.name + " [Ally]") {
-                        @Override
-                        protected void onClick() {
-                            spawnMob(entry, Char.Alignment.ALLY);
-                            hide();
-                        }
-                    };
-                    btnAlly.setRect(btnFoe.right() + MARGIN, p, (width - MARGIN) / 2, BTN_HEIGHT);
-                    add(btnAlly);
-                    p += BTN_HEIGHT + MARGIN;
-                }
-                resize(width, (int) p);
+                add(scrollPane);
+                scrollPane.setRect(0, p, width, fixedHeight);
+                resize(width, (int) (p + fixedHeight));
             }
         };
         GameScene.show(subWindow);
