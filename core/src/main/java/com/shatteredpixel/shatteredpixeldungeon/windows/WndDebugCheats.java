@@ -46,8 +46,6 @@ public class WndDebugCheats extends Window {
 	private static final int MARGIN = 2;
 	private static final int BTN_HEIGHT = 16;
 
-	private static CellSelector.Listener teleportListener;
-
 	public WndDebugCheats() {
 		super();
 
@@ -178,26 +176,7 @@ public class WndDebugCheats extends Window {
 			protected void onClick() {
 				hide();
 				GLog.i("Tap a cell to teleport there");
-				teleportListener = new CellSelector.Listener() {
-					@Override
-					public void onSelect(Integer cell) {
-						if (cell != null && Dungeon.level != null
-								&& (Dungeon.level.passable[cell] || Dungeon.level.avoid[cell])) {
-							ScrollOfTeleportation.appear(Dungeon.hero, cell);
-							Dungeon.observe();
-							GameScene.updateFog();
-							GLog.p("Teleported!");
-						} else if (cell != null) {
-							GLog.n("Cannot teleport to that cell - not walkable");
-						}
-					}
-
-					@Override
-					public String prompt() {
-						return "Choose teleport destination";
-					}
-				};
-				GameScene.selectCell(teleportListener);
+				GameScene.selectCell(new TeleportListener());
 			}
 		};
 		btnTeleport.setRect(0, pos, width, BTN_HEIGHT);
@@ -216,6 +195,26 @@ public class WndDebugCheats extends Window {
 		pos += BTN_HEIGHT + MARGIN;
 
 		resize(width, (int) (pos));
+	}
+
+	private static class TeleportListener extends CellSelector.Listener {
+		@Override
+		public void onSelect(Integer cell) {
+			if (cell == null || Dungeon.level == null) return;
+			if (Dungeon.level.passable[cell] || Dungeon.level.avoid[cell]) {
+				ScrollOfTeleportation.appear(Dungeon.hero, cell);
+				Dungeon.observe();
+				GameScene.updateFog();
+				GLog.p("Teleported!");
+			} else {
+				GLog.n("Cannot teleport to that cell - not walkable");
+			}
+		}
+
+		@Override
+		public String prompt() {
+			return "Choose teleport destination";
+		}
 	}
 
 	private static void freezeAllEnemies() {
