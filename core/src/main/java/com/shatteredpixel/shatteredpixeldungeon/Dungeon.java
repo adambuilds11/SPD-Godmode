@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.debug.DebugMenu;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Amok;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AscensionChallenge;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Awareness;
@@ -502,6 +503,17 @@ public class Dungeon {
 			}
 		}
 		
+		// Apply god mode map reveal and gold on level switch
+		if (DebugMenu.revealMap) {
+			for (int i = 0; i < level.length(); i++) {
+				level.mapped[i] = true;
+				level.visited[i] = true;
+			}
+		}
+		if (DebugMenu.infiniteGold) {
+			Dungeon.gold = 100000;
+		}
+
 		Light light = hero.buff( Light.class );
 		hero.viewDistance = light == null ? level.viewDistance : Math.max( Light.DISTANCE, level.viewDistance );
 		

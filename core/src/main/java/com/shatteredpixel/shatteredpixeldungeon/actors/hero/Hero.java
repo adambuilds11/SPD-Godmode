@@ -187,12 +187,13 @@ import com.watabou.utils.Random;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import com.shatteredpixel.shatteredpixeldungeon.debug.DebugMenu;
 
 public class Hero extends Char {
 
 	{
 		actPriority = HERO_PRIO;
-		
+
 		alignment = Alignment.ALLY;
 	}
 	
@@ -489,7 +490,35 @@ public class Hero extends Char {
 	
 	@Override
 	public boolean attack(Char enemy, float dmgMulti, float dmgBonus, float accMulti) {
+		if (DebugMenu.godMode) {
+			accMulti = Float.POSITIVE_INFINITY; // guaranteed hit
+		}
 		boolean result = super.attack(enemy, dmgMulti, dmgBonus, accMulti);
+
+		if (result && DebugMenu.knockback && enemy.isAlive()) {
+			// Push enemy away from hero
+			int heroPos = pos;
+			int enemyPos = enemy.pos;
+			int dx = enemyPos % Dungeon.level.width() - heroPos % Dungeon.level.width();
+			int dy = enemyPos / Dungeon.level.width() - heroPos / Dungeon.level.width();
+			// Normalize direction
+			if (dx != 0) dx = dx > 0 ? 1 : -1;
+			if (dy != 0) dy = dy > 0 ? 1 : -1;
+			// Try to push enemy 2 cells in that direction
+			for (int cells = 1; cells <= 2; cells++) {
+				int targetCell = enemyPos + dx * cells + dy * cells * Dungeon.level.width();
+				if (targetCell >= 0 && targetCell < Dungeon.level.length()
+						&& (Dungeon.level.passable[targetCell] || Dungeon.level.avoid[targetCell])
+						&& Actor.findChar(targetCell) == null) {
+					enemy.pos = targetCell;
+					enemy.sprite.place(targetCell);
+					if (cells == 2) break;
+				} else {
+					break;
+				}
+			}
+		}
+
 		if (!(belongings.attackingWeapon() instanceof MissileWeapon)){
 			if (buff(Talent.PreciseAssaultTracker.class) != null){
 				buff(Talent.PreciseAssaultTracker.class).detach();
@@ -661,6 +690,11 @@ public class Hero extends Char {
 	
 	@Override
 	public int damageRoll() {
+
+		if (DebugMenu.oneHitKill){
+			return 1000;
+		}
+
 		KindOfWeapon wep = belongings.attackingWeapon();
 		int dmg;
 
@@ -807,11 +841,17 @@ public class Hero extends Char {
 
 	@Override
 	public void spend( float time ) {
+		if (DebugMenu.infiniteSpeed && !resting && !waitOrPickup) {
+			return; // no time cost, except when waiting/resting to advance game time
+		}
 		super.spend(time);
 	}
 
 	@Override
 	public void spendConstant(float time) {
+		if (DebugMenu.infiniteSpeed && !resting && !waitOrPickup) {
+			return; // no time cost, except when waiting/resting to advance game time
+		}
 		super.spendConstant(time);
 	}
 
@@ -829,6 +869,30 @@ public class Hero extends Char {
 	
 	@Override
 	public boolean act() {
+		
+		// Apply god mode setup on first act of a new game
+		if (DebugMenu.godMode && Actor.now() == 0 && lvl < 20) {
+			// Set level to 20
+			while (lvl < 20) {
+				lvl++;
+				attackSkill++;
+				defenseSkill++;
+			}
+			updateHT(true);
+			// Give 100,000 gold
+			Dungeon.gold = 100000;
+			// Apply permanent buffs
+			Buff.affect(this, GreaterHaste.class);
+			Buff.affect(this, MindVision.class, Float.MAX_VALUE);
+			Buff.affect(this, Awareness.class, Float.MAX_VALUE);
+			// Reveal the entire map
+			for (int i = 0; i < Dungeon.level.length(); i++) {
+				Dungeon.level.mapped[i] = true;
+				Dungeon.level.visited[i] = true;
+			}
+			Dungeon.observe();
+			GameScene.updateFog();
+		}
 		
 		//calls to dungeon.observe will also update hero's local FOV.
 		fieldOfView = Dungeon.level.heroFOV;
@@ -1578,6 +1642,13 @@ public class Hero extends Char {
 
 	@Override
 	public void damage( int dmg, Object src ) {
+
+		if (DebugMenu.godMode) {
+			HP = HT;
+			sprite.showStatus(CharSprite.POSITIVE, "GOD");
+			return;
+		}
+
 		if (buff(TimekeepersHourglass.timeStasis.class) != null
 				|| buff(TimeStasis.class) != null) {
 			return;

@@ -61,6 +61,16 @@ public class WndGame extends Window {
 		});
 		curBtn.icon(Icons.get(Icons.PREFS));
 
+		// Cheats window
+		addButton( curBtn = new RedButton( "Cheats" ) {
+			@Override
+			protected void onClick() {
+				hide();
+				GameScene.show(new WndDebugCheats());
+			}
+		} );
+		curBtn.icon(Icons.get(Icons.PREFS));
+
 		// Challenges window
 		if (Dungeon.challenges > 0) {
 			addButton( curBtn = new RedButton( Messages.get(this, "challenges") ) {

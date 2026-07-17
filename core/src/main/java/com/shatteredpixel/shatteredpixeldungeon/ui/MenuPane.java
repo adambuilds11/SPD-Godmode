@@ -413,9 +413,10 @@ public class MenuPane extends Component {
 			return GameAction.BACK;
 		}
 
-		@Override
-		protected String hoverText() {
-			return Messages.titleCase(Messages.get(WndKeyBindings.class, "menu"));
-		}
+	@Override
+	protected String hoverText() {
+		return Messages.titleCase(Messages.get(WndKeyBindings.class, "menu"));
 	}
+	}
+
 }
