@@ -10,7 +10,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This program is free software: it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -24,220 +24,119 @@ package com.shatteredpixel.shatteredpixeldungeon.windows;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bat;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Crab;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM300;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Eye;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Gnoll;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Golem;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Goo;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Skeleton;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Tengu;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Warlock;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.YogDzewa;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.LeatherArmor;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.MailArmor;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.ScaleArmor;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.PlateArmor;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.AlchemistsToolkit;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.ChaliceOfBlood;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.EtherealChains;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HornOfPlenty;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.MasterThievesArmband;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.SandalsOfNature;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TalismanOfForesight;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.UnstableSpellbook;
-import com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb;
-import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfExperience;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfFrost;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHaste;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfInvisibility;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLevitation;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLiquidFlame;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfMindVision;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfParalyticGas;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfPurity;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfToxicGas;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAccuracy;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfArcana;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfElements;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEvasion;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfForce;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfFuror;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMight;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfSharpshooting;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTenacity;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfLullaby;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMirrorImage;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRage;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRemoveCurse;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRetribution;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTerror;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTransmutation;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.BattleAxe;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Crossbow;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dagger;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Flail;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Gauntlet;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Gloves;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Greataxe;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Greatsword;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Longsword;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Mace;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Quarterstaff;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Rapier;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.RoundShield;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Sai;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Scimitar;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Shortsword;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Spear;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Sword;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WarHammer;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WornShortsword;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
-import com.shatteredpixel.shatteredpixeldungeon.ui.ScrollPane;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.watabou.noosa.ui.Component;
 import com.watabou.utils.PathFinder;
+import com.watabou.utils.Reflection;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class WndCheatConsole extends Window {
 
-    private static final int WIDTH_P = 140;
-    private static final int WIDTH_L = 180;
+    private static final int WIDTH_P = 120;
+    private static final int WIDTH_L = 144;
     private static final int MARGIN = 2;
     private static final int BTN_HEIGHT = 16;
 
-    private enum Mode {
-        ITEMS,
-        MOBS
-    }
-
-    // Store entries as lists for dynamic filtering
-    private static final SpawnEntry[] ITEMS = new SpawnEntry[]{
-            new SpawnEntry("Dagger", Dagger.class),
-            new SpawnEntry("Gloves", Gloves.class),
-            new SpawnEntry("Shortsword", Shortsword.class),
-            new SpawnEntry("Worn Shortsword", WornShortsword.class),
-            new SpawnEntry("Sword", Sword.class),
-            new SpawnEntry("Longsword", Longsword.class),
-            new SpawnEntry("Greatsword", Greatsword.class),
-            new SpawnEntry("Spear", Spear.class),
-            new SpawnEntry("Quarterstaff", Quarterstaff.class),
-            new SpawnEntry("Mace", Mace.class),
-            new SpawnEntry("Battle Axe", BattleAxe.class),
-            new SpawnEntry("War Hammer", WarHammer.class),
-            new SpawnEntry("Flail", Flail.class),
-            new SpawnEntry("Scimitar", Scimitar.class),
-            new SpawnEntry("Rapier", Rapier.class),
-            new SpawnEntry("Sai", Sai.class),
-            new SpawnEntry("Crossbow", Crossbow.class),
-            new SpawnEntry("Round Shield", RoundShield.class),
-            new SpawnEntry("Gauntlet", Gauntlet.class),
-            new SpawnEntry("Greataxe", Greataxe.class),
-            new SpawnEntry("Cloth Armor", ClothArmor.class),
-            new SpawnEntry("Leather Armor", LeatherArmor.class),
-            new SpawnEntry("Mail Armor", MailArmor.class),
-            new SpawnEntry("Scale Armor", ScaleArmor.class),
-            new SpawnEntry("Plate Armor", PlateArmor.class),
-            new SpawnEntry("Ring of Accuracy", RingOfAccuracy.class),
-            new SpawnEntry("Ring of Arcana", RingOfArcana.class),
-            new SpawnEntry("Ring of Elements", RingOfElements.class),
-            new SpawnEntry("Ring of Energy", RingOfEnergy.class),
-            new SpawnEntry("Ring of Evasion", RingOfEvasion.class),
-            new SpawnEntry("Ring of Force", RingOfForce.class),
-            new SpawnEntry("Ring of Furor", RingOfFuror.class),
-            new SpawnEntry("Ring of Haste", RingOfHaste.class),
-            new SpawnEntry("Ring of Might", RingOfMight.class),
-            new SpawnEntry("Ring of Sharpshooting", RingOfSharpshooting.class),
-            new SpawnEntry("Ring of Tenacity", RingOfTenacity.class),
-            new SpawnEntry("Ring of Wealth", RingOfWealth.class),
-            new SpawnEntry("Potion of Healing", PotionOfHealing.class),
-            new SpawnEntry("Potion of Strength", PotionOfStrength.class),
-            new SpawnEntry("Potion of Experience", PotionOfExperience.class),
-            new SpawnEntry("Potion of Invisibility", PotionOfInvisibility.class),
-            new SpawnEntry("Potion of Mind Vision", PotionOfMindVision.class),
-            new SpawnEntry("Potion of Haste", PotionOfHaste.class),
-            new SpawnEntry("Potion of Levitation", PotionOfLevitation.class),
-            new SpawnEntry("Potion of Liquid Flame", PotionOfLiquidFlame.class),
-            new SpawnEntry("Potion of Toxic Gas", PotionOfToxicGas.class),
-            new SpawnEntry("Potion of Paralytic Gas", PotionOfParalyticGas.class),
-            new SpawnEntry("Potion of Frost", PotionOfFrost.class),
-            new SpawnEntry("Potion of Purity", PotionOfPurity.class),
-            new SpawnEntry("Scroll of Upgrade", ScrollOfUpgrade.class),
-            new SpawnEntry("Scroll of Identify", ScrollOfIdentify.class),
-            new SpawnEntry("Scroll of Magic Mapping", ScrollOfMagicMapping.class),
-            new SpawnEntry("Scroll of Teleportation", ScrollOfTeleportation.class),
-            new SpawnEntry("Scroll of Recharging", ScrollOfRecharging.class),
-            new SpawnEntry("Scroll of Mirror Image", ScrollOfMirrorImage.class),
-            new SpawnEntry("Scroll of Rage", ScrollOfRage.class),
-            new SpawnEntry("Scroll of Terror", ScrollOfTerror.class),
-            new SpawnEntry("Scroll of Lullaby", ScrollOfLullaby.class),
-            new SpawnEntry("Scroll of Retribution", ScrollOfRetribution.class),
-            new SpawnEntry("Scroll of Remove Curse", ScrollOfRemoveCurse.class),
-            new SpawnEntry("Scroll of Transmutation", ScrollOfTransmutation.class),
-            new SpawnEntry("Sandals of Nature", SandalsOfNature.class),
-            new SpawnEntry("Chalice of Blood", ChaliceOfBlood.class),
-            new SpawnEntry("Horn of Plenty", HornOfPlenty.class),
-            new SpawnEntry("Master Thieves Armband", MasterThievesArmband.class),
-            new SpawnEntry("Talisman of Foresight", TalismanOfForesight.class),
-            new SpawnEntry("Timekeeper's Hourglass", TimekeepersHourglass.class),
-            new SpawnEntry("Unstable Spellbook", UnstableSpellbook.class),
-            new SpawnEntry("Ethereal Chains", EtherealChains.class),
-            new SpawnEntry("Dried Rose", DriedRose.class),
-            new SpawnEntry("Alchemist's Toolkit", AlchemistsToolkit.class),
-            new SpawnEntry("Cloak of Shadows", CloakOfShadows.class),
-            new SpawnEntry("Holy Tome", HolyTome.class),
-            new SpawnEntry("Food Ration", Food.class),
-            new SpawnEntry("Bomb", Bomb.class),
+    // All spawnable items referenced by simple class names for reflection
+    private static final Class<? extends Item>[] ITEM_CLASSES = new Class[]{
+            com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dagger.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Gloves.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Shortsword.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WornShortsword.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Sword.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Longsword.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Greatsword.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Spear.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Quarterstaff.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Mace.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.BattleAxe.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WarHammer.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Flail.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Scimitar.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Rapier.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Sai.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Crossbow.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.RoundShield.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Gauntlet.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Greataxe.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.armor.LeatherArmor.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.armor.MailArmor.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.armor.ScaleArmor.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.armor.PlateArmor.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAccuracy.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfArcana.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfElements.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEvasion.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfForce.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfFuror.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMight.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfSharpshooting.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTenacity.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfExperience.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfInvisibility.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfMindVision.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHaste.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLevitation.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLiquidFlame.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfToxicGas.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfParalyticGas.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfFrost.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfPurity.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMirrorImage.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRage.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTerror.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfLullaby.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRetribution.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRemoveCurse.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTransmutation.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.artifacts.SandalsOfNature.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.artifacts.ChaliceOfBlood.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HornOfPlenty.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.artifacts.MasterThievesArmband.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TalismanOfForesight.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.artifacts.UnstableSpellbook.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.artifacts.EtherealChains.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.artifacts.AlchemistsToolkit.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.food.Food.class,
+            com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb.class,
     };
 
-    // Registry of all spawnable mobs
-    private static final SpawnEntry[] MOBS = new SpawnEntry[]{
-            new SpawnEntry("Rat", Rat.class),
-            new SpawnEntry("Crab", Crab.class),
-            new SpawnEntry("Snake", Snake.class),
-            new SpawnEntry("Gnoll", Gnoll.class),
-            new SpawnEntry("Skeleton", Skeleton.class),
-            new SpawnEntry("Goo", Goo.class),
-            new SpawnEntry("Tengu", Tengu.class),
-            new SpawnEntry("DM-300", DM300.class),
-            new SpawnEntry("Golem", Golem.class),
-            new SpawnEntry("Warlock", Warlock.class),
-            new SpawnEntry("Bat", Bat.class),
-            new SpawnEntry("Eye", Eye.class),
-            new SpawnEntry("Yog-Dzewa", YogDzewa.class),
+    private static final Class<? extends Mob>[] MOB_CLASSES = new Class[]{
+            com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat.class,
+            com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Crab.class,
+            com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake.class,
+            com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Gnoll.class,
+            com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Skeleton.class,
+            com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bat.class,
+            com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Golem.class,
+            com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Warlock.class,
+            com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Eye.class,
     };
-
-    private Component listContent;
-    private ScrollPane scrollPane;
-    private Mode currentMode = null;
 
     public WndCheatConsole() {
         super();
@@ -252,130 +151,108 @@ public class WndCheatConsole extends Window {
 
         float pos = title.bottom() + 2 * MARGIN;
 
-        // Mode selection buttons
-        RedButton btnItems = new RedButton("Items") {
+        // Spawn Item button
+        RedButton btnItems = new RedButton("Spawn Item") {
             @Override
             protected void onClick() {
-                showItems();
+                showItemPicker();
             }
         };
         btnItems.icon(Icons.get(Icons.BACKPACK));
-        btnItems.setRect(0, pos, (width - MARGIN) / 2, BTN_HEIGHT);
+        btnItems.setRect(0, pos, width, BTN_HEIGHT);
         add(btnItems);
-
-        RedButton btnMobs = new RedButton("Mobs") {
-            @Override
-            protected void onClick() {
-                showMobs();
-            }
-        };
-        btnMobs.icon(Icons.get(Icons.SNAKE));
-        btnMobs.setRect(btnItems.right() + MARGIN, pos, (width - MARGIN) / 2, BTN_HEIGHT);
-        add(btnMobs);
         pos += BTN_HEIGHT + MARGIN;
 
-        // Create a scroll pane for the list
-        listContent = new Component();
-        scrollPane = new ScrollPane(listContent);
-        add(scrollPane);
+        // Spawn Mob buttons
+        RedButton btnMobFoe = new RedButton("Spawn Mob (Foe)") {
+            @Override
+            protected void onClick() {
+                showMobPicker(Char.Alignment.ENEMY);
+            }
+        };
+        btnMobFoe.icon(Icons.get(Icons.SKULL));
+        btnMobFoe.setRect(0, pos, (width - MARGIN) / 2, BTN_HEIGHT);
+        add(btnMobFoe);
 
-        // Calculate available height
-        int maxHeight = PixelScene.uiCamera.height - 20;
-        int listHeight = (int)(maxHeight - pos);
-        scrollPane.setRect(0, pos, width, listHeight);
-        resize(width, maxHeight);
+        RedButton btnMobAlly = new RedButton("Spawn Mob (Ally)") {
+            @Override
+            protected void onClick() {
+                showMobPicker(Char.Alignment.ALLY);
+            }
+        };
+        btnMobAlly.icon(Icons.get(Icons.SNAKE));
+        btnMobAlly.setRect(btnMobFoe.right() + MARGIN, pos, (width - MARGIN) / 2, BTN_HEIGHT);
+        add(btnMobAlly);
+        pos += BTN_HEIGHT + MARGIN;
 
-        // Show items by default
-        showItems();
+        resize(width, (int) pos);
     }
 
-    private void showItems() {
-        if (currentMode == Mode.ITEMS) return;
-        currentMode = Mode.ITEMS;
-
-        listContent.clear();
-        float y = MARGIN;
-
-        for (final SpawnEntry entry : ITEMS) {
-            RedButton btn = new RedButton(entry.name) {
-                @Override
-                protected void onClick() {
-                    spawnItem(entry);
-                }
-            };
-            btn.setRect(0, y, scrollPane.width(), BTN_HEIGHT);
-            btn.multiline = true;
-            listContent.add(btn);
-            y += BTN_HEIGHT + MARGIN;
+    private void showItemPicker() {
+        final String[] names = new String[ITEM_CLASSES.length];
+        for (int i = 0; i < ITEM_CLASSES.length; i++) {
+            try {
+                Item item = Reflection.newInstance(ITEM_CLASSES[i]);
+                names[i] = item.name();
+            } catch (Exception e) {
+                names[i] = ITEM_CLASSES[i].getSimpleName();
+            }
         }
 
-        listContent.setSize(scrollPane.width(), y);
-        scrollPane.setSize(scrollPane.width(), scrollPane.height());
-        scrollPane.scrollTo(0, 0);
+        GameScene.show(new WndOptions("Select Item", "Click to spawn:", names) {
+            @Override
+            protected void onSelect(int index) {
+                spawnItem(ITEM_CLASSES[index]);
+            }
+        });
     }
 
-    private void showMobs() {
-        if (currentMode == Mode.MOBS) return;
-        currentMode = Mode.MOBS;
-
-        listContent.clear();
-        float y = MARGIN;
-
-        for (final SpawnEntry entry : MOBS) {
-            RedButton btnFoe = new RedButton(entry.name + " [Foe]") {
-                @Override
-                protected void onClick() {
-                    spawnMob(entry, Char.Alignment.ENEMY);
-                }
-            };
-            btnFoe.setRect(0, y, (scrollPane.width() - MARGIN) / 2, BTN_HEIGHT);
-            listContent.add(btnFoe);
-
-            RedButton btnAlly = new RedButton(entry.name + " [Ally]") {
-                @Override
-                protected void onClick() {
-                    spawnMob(entry, Char.Alignment.ALLY);
-                }
-            };
-            btnAlly.setRect(btnFoe.right() + MARGIN, y, (scrollPane.width() - MARGIN) / 2, BTN_HEIGHT);
-            listContent.add(btnAlly);
-            y += BTN_HEIGHT + MARGIN;
+    private void showMobPicker(final Char.Alignment alignment) {
+        final String[] names = new String[MOB_CLASSES.length];
+        for (int i = 0; i < MOB_CLASSES.length; i++) {
+            try {
+                Mob mob = Reflection.newInstance(MOB_CLASSES[i]);
+                names[i] = mob.name();
+            } catch (Exception e) {
+                names[i] = MOB_CLASSES[i].getSimpleName();
+            }
         }
 
-        listContent.setSize(scrollPane.width(), y);
-        scrollPane.setSize(scrollPane.width(), scrollPane.height());
-        scrollPane.scrollTo(0, 0);
+        GameScene.show(new WndOptions("Select Mob (" + (alignment == Char.Alignment.ENEMY ? "Foe" : "Ally") + ")", "Click to spawn:", names) {
+            @Override
+            protected void onSelect(int index) {
+                spawnMob(MOB_CLASSES[index], alignment);
+            }
+        });
     }
 
-    private void spawnItem(SpawnEntry entry) {
+    private void spawnItem(Class<? extends Item> cls) {
         try {
-            Item item = (Item) entry.itemClass.newInstance();
+            Item item = Reflection.newInstance(cls);
             item.identify();
             if (Dungeon.hero != null && Dungeon.hero.isAlive()) {
                 if (item.doPickUp(Dungeon.hero)) {
-                    GLog.p("Spawned " + entry.name + " - added to inventory");
+                    GLog.p("Spawned " + item.name() + " - added to inventory");
                 } else {
-                    Dungeon.level.drop(item, Dungeon.hero.pos).sprite.drop();
-                    GLog.i("Spawned " + entry.name + " at your feet");
+                    if (Dungeon.level != null) {
+                        Dungeon.level.drop(item, Dungeon.hero.pos).sprite.drop();
+                        GLog.i("Spawned " + item.name() + " at your feet");
+                    }
                 }
-            } else {
-                Dungeon.level.drop(item, Dungeon.hero.pos).sprite.drop();
-                GLog.i("Spawned " + entry.name + " at your feet");
             }
         } catch (Exception e) {
-            GLog.n("Failed to spawn " + entry.name);
-            e.printStackTrace();
+            GLog.n("Failed to spawn item!");
         }
     }
 
-    private void spawnMob(SpawnEntry entry, Char.Alignment alignment) {
+    private void spawnMob(Class<? extends Mob> cls, Char.Alignment alignment) {
         try {
-            Mob mob = (Mob) entry.itemClass.newInstance();
-            int pos = Dungeon.hero.pos;
-            int spawnPos = pos;
+            Mob mob = Reflection.newInstance(cls);
+            int heroPos = Dungeon.hero.pos;
+            int spawnPos = heroPos;
             for (int i : PathFinder.NEIGHBOURS8) {
-                int cell = pos + i;
-                if (cell >= 0 && cell < Dungeon.level.length()
+                int cell = heroPos + i;
+                if (Dungeon.level != null && cell >= 0 && cell < Dungeon.level.length()
                         && Dungeon.level.passable[cell]
                         && Actor.findChar(cell) == null) {
                     spawnPos = cell;
@@ -389,23 +266,14 @@ public class WndCheatConsole extends Window {
             } else {
                 mob.aggro(Dungeon.hero);
             }
-            Dungeon.level.mobs.add(mob);
-            GameScene.addSprite(mob);
-            Actor.addDelayed(mob, 0);
-            GLog.i("Spawned " + (alignment == Char.Alignment.ALLY ? "ally " : "foe ") + entry.name);
+            if (Dungeon.level != null) {
+                Dungeon.level.mobs.add(mob);
+                GameScene.addSprite(mob);
+                Actor.addDelayed(mob, 0);
+            }
+            GLog.i("Spawned " + (alignment == Char.Alignment.ALLY ? "ally " : "foe ") + mob.name());
         } catch (Exception e) {
-            GLog.n("Failed to spawn " + entry.name);
-            e.printStackTrace();
-        }
-    }
-
-    private static class SpawnEntry {
-        String name;
-        Class<?> itemClass;
-
-        SpawnEntry(String name, Class<?> itemClass) {
-            this.name = name;
-            this.itemClass = itemClass;
+            GLog.n("Failed to spawn mob!");
         }
     }
 }
