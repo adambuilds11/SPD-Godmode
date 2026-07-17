@@ -125,6 +125,8 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.ui.Component;
 import com.watabou.utils.PathFinder;
 
+import java.util.ArrayList;
+
 public class WndCheatConsole extends Window {
 
     private static final int WIDTH_P = 140;
@@ -132,7 +134,12 @@ public class WndCheatConsole extends Window {
     private static final int MARGIN = 2;
     private static final int BTN_HEIGHT = 16;
 
-    // Registry of all spawnable items
+    private enum Mode {
+        ITEMS,
+        MOBS
+    }
+
+    // Store entries as lists for dynamic filtering
     private static final SpawnEntry[] ITEMS = new SpawnEntry[]{
             new SpawnEntry("Dagger", Dagger.class),
             new SpawnEntry("Gloves", Gloves.class),
@@ -228,6 +235,10 @@ public class WndCheatConsole extends Window {
             new SpawnEntry("Yog-Dzewa", YogDzewa.class),
     };
 
+    private Component listContent;
+    private ScrollPane scrollPane;
+    private Mode currentMode = null;
+
     public WndCheatConsole() {
         super();
 
@@ -241,30 +252,21 @@ public class WndCheatConsole extends Window {
 
         float pos = title.bottom() + 2 * MARGIN;
 
-        RenderedTextBlock output = PixelScene.renderTextBlock(6);
-        output.maxWidth(width - MARGIN * 2);
-        output.text("Use the buttons below to spawn items and mobs.", width - MARGIN * 2);
-        output.setPos(MARGIN, pos);
-        add(output);
-
-        pos = output.bottom() + 2 * MARGIN;
-
-        // Browse Items button
-        RedButton btnItems = new RedButton("Browse Items") {
+        // Mode selection buttons
+        RedButton btnItems = new RedButton("Items") {
             @Override
             protected void onClick() {
-                showItemPicker();
+                showItems();
             }
         };
         btnItems.icon(Icons.get(Icons.BACKPACK));
         btnItems.setRect(0, pos, (width - MARGIN) / 2, BTN_HEIGHT);
         add(btnItems);
 
-        // Browse Mobs button
-        RedButton btnMobs = new RedButton("Browse Mobs") {
+        RedButton btnMobs = new RedButton("Mobs") {
             @Override
             protected void onClick() {
-                showMobPicker();
+                showMobs();
             }
         };
         btnMobs.icon(Icons.get(Icons.SNAKE));
@@ -272,99 +274,77 @@ public class WndCheatConsole extends Window {
         add(btnMobs);
         pos += BTN_HEIGHT + MARGIN;
 
-        resize(width, (int) pos);
+        // Create a scroll pane for the list
+        listContent = new Component();
+        scrollPane = new ScrollPane(listContent);
+        add(scrollPane);
+
+        // Calculate available height
+        int maxHeight = PixelScene.uiCamera.height - 20;
+        int listHeight = (int)(maxHeight - pos);
+        scrollPane.setRect(0, pos, width, listHeight);
+        resize(width, maxHeight);
+
+        // Show items by default
+        showItems();
     }
 
-    private void showItemPicker() {
-        final int width = PixelScene.landscape() ? WIDTH_L : WIDTH_P;
-        Component listContent = new Component();
-        float listPos = MARGIN;
+    private void showItems() {
+        if (currentMode == Mode.ITEMS) return;
+        currentMode = Mode.ITEMS;
+
+        listContent.clear();
+        float y = MARGIN;
+
         for (final SpawnEntry entry : ITEMS) {
             RedButton btn = new RedButton(entry.name) {
                 @Override
                 protected void onClick() {
                     spawnItem(entry);
-                    hide();
                 }
             };
-            btn.setRect(0, listPos, width, BTN_HEIGHT);
+            btn.setRect(0, y, scrollPane.width(), BTN_HEIGHT);
             btn.multiline = true;
             listContent.add(btn);
-            listPos += BTN_HEIGHT + MARGIN;
+            y += BTN_HEIGHT + MARGIN;
         }
-        listContent.setSize(width, listPos);
 
-        // Use a fixed-height scroll window (since we can't easily make a scrollable outside Window)
-        final int fixedHeight = Math.min((int)listPos, PixelScene.uiCamera.height - 20);
-        ScrollPane scrollPane = new ScrollPane(listContent);
-        scrollPane.setRect(0, 0, width, fixedHeight);
-
-        Window subWindow = new Window() {
-            private float p = MARGIN;
-            {
-                RenderedTextBlock title = PixelScene.renderTextBlock("Select Item to Spawn", 9);
-                title.hardlight(TITLE_COLOR);
-                title.setPos(MARGIN, MARGIN);
-                title.maxWidth(width - MARGIN * 2);
-                add(title);
-                p = title.bottom() + 2 * MARGIN;
-
-                add(scrollPane);
-                scrollPane.setRect(0, p, width, fixedHeight);
-                resize(width, (int) (p + fixedHeight));
-            }
-        };
-        GameScene.show(subWindow);
+        listContent.setSize(scrollPane.width(), y);
+        scrollPane.setSize(scrollPane.width(), scrollPane.height());
+        scrollPane.scrollTo(0, 0);
     }
 
-    private void showMobPicker() {
-        final int width = PixelScene.landscape() ? WIDTH_L : WIDTH_P;
-        Component listContent = new Component();
-        float listPos = MARGIN;
+    private void showMobs() {
+        if (currentMode == Mode.MOBS) return;
+        currentMode = Mode.MOBS;
+
+        listContent.clear();
+        float y = MARGIN;
+
         for (final SpawnEntry entry : MOBS) {
             RedButton btnFoe = new RedButton(entry.name + " [Foe]") {
                 @Override
                 protected void onClick() {
                     spawnMob(entry, Char.Alignment.ENEMY);
-                    hide();
                 }
             };
-            btnFoe.setRect(0, listPos, (width - MARGIN) / 2, BTN_HEIGHT);
+            btnFoe.setRect(0, y, (scrollPane.width() - MARGIN) / 2, BTN_HEIGHT);
             listContent.add(btnFoe);
 
             RedButton btnAlly = new RedButton(entry.name + " [Ally]") {
                 @Override
                 protected void onClick() {
                     spawnMob(entry, Char.Alignment.ALLY);
-                    hide();
                 }
             };
-            btnAlly.setRect(btnFoe.right() + MARGIN, listPos, (width - MARGIN) / 2, BTN_HEIGHT);
+            btnAlly.setRect(btnFoe.right() + MARGIN, y, (scrollPane.width() - MARGIN) / 2, BTN_HEIGHT);
             listContent.add(btnAlly);
-            listPos += BTN_HEIGHT + MARGIN;
+            y += BTN_HEIGHT + MARGIN;
         }
-        listContent.setSize(width, listPos);
 
-        final int fixedHeight = Math.min((int)listPos, PixelScene.uiCamera.height - 20);
-        ScrollPane scrollPane = new ScrollPane(listContent);
-        scrollPane.setRect(0, 0, width, fixedHeight);
-
-        Window subWindow = new Window() {
-            private float p = MARGIN;
-            {
-                RenderedTextBlock title = PixelScene.renderTextBlock("Select Mob to Spawn", 9);
-                title.hardlight(TITLE_COLOR);
-                title.setPos(MARGIN, MARGIN);
-                title.maxWidth(width - MARGIN * 2);
-                add(title);
-                p = title.bottom() + 2 * MARGIN;
-
-                add(scrollPane);
-                scrollPane.setRect(0, p, width, fixedHeight);
-                resize(width, (int) (p + fixedHeight));
-            }
-        };
-        GameScene.show(subWindow);
+        listContent.setSize(scrollPane.width(), y);
+        scrollPane.setSize(scrollPane.width(), scrollPane.height());
+        scrollPane.scrollTo(0, 0);
     }
 
     private void spawnItem(SpawnEntry entry) {
@@ -384,10 +364,10 @@ public class WndCheatConsole extends Window {
             }
         } catch (Exception e) {
             GLog.n("Failed to spawn " + entry.name);
+            e.printStackTrace();
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void spawnMob(SpawnEntry entry, Char.Alignment alignment) {
         try {
             Mob mob = (Mob) entry.itemClass.newInstance();
@@ -405,10 +385,8 @@ public class WndCheatConsole extends Window {
             mob.pos = spawnPos;
             mob.alignment = alignment;
             if (alignment == Char.Alignment.ALLY) {
-                // Set ally - mob will automatically wander/be passive
                 mob.clearEnemy();
             } else {
-                // Set foe - this makes it aggressive toward the hero
                 mob.aggro(Dungeon.hero);
             }
             Dungeon.level.mobs.add(mob);
@@ -417,6 +395,7 @@ public class WndCheatConsole extends Window {
             GLog.i("Spawned " + (alignment == Char.Alignment.ALLY ? "ally " : "foe ") + entry.name);
         } catch (Exception e) {
             GLog.n("Failed to spawn " + entry.name);
+            e.printStackTrace();
         }
     }
 
