@@ -22,7 +22,13 @@
 package com.shatteredpixel.shatteredpixeldungeon.windows;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.debug.DebugMenu;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.CheckBox;
@@ -30,6 +36,8 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.CurrencyIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.utils.PathFinder;
 
 public class WndDebugCheats extends Window {
 
@@ -145,6 +153,55 @@ public class WndDebugCheats extends Window {
 		add(cbKnockback);
 		pos += BTN_HEIGHT + MARGIN;
 
+		// Freeze Enemies
+		CheckBox cbFreeze = new CheckBox("Freeze Enemies") {
+			@Override
+			protected void onClick() {
+				super.onClick();
+				DebugMenu.freezeEnemies = checked();
+				if (DebugMenu.freezeEnemies) {
+					freezeAllEnemies();
+				} else {
+					unfreezeAllEnemies();
+				}
+			}
+		};
+		cbFreeze.checked(DebugMenu.freezeEnemies);
+		cbFreeze.setRect(0, pos, width, BTN_HEIGHT);
+		add(cbFreeze);
+		pos += BTN_HEIGHT + MARGIN;
+
+		// Teleport
+		RedButton btnTeleport = new RedButton("Teleport to Cell") {
+			@Override
+			protected void onClick() {
+				hide();
+				Dungeon.hero.busy();
+				GLog.i("Tap a walkable cell to teleport there");
+				GameScene.selectCell(new CellSelector.Listener() {
+					@Override
+					public void onSelect(Integer cell) {
+						if (cell != null && Dungeon.level != null
+								&& (Dungeon.level.passable[cell] || Dungeon.level.avoid[cell])) {
+							ScrollOfTeleportation.appear(Dungeon.hero, cell);
+							Dungeon.hero.spendAndNext(0);
+							Dungeon.hero.next();
+						} else if (cell != null) {
+							GLog.n("Cannot teleport to that cell - not walkable");
+						}
+					}
+
+					@Override
+					public String prompt() {
+						return "Choose teleport destination";
+					}
+				});
+			}
+		};
+		btnTeleport.setRect(0, pos, width, BTN_HEIGHT);
+		add(btnTeleport);
+		pos += BTN_HEIGHT + MARGIN;
+
 		// Cheat Console button
 		RedButton btnConsole = new RedButton("Cheat Console") {
 			@Override
@@ -157,5 +214,26 @@ public class WndDebugCheats extends Window {
 		pos += BTN_HEIGHT + MARGIN;
 
 		resize(width, (int) (pos));
+	}
+
+	private static void freezeAllEnemies() {
+		if (Dungeon.level == null) return;
+		for (Mob mob : Dungeon.level.mobs.toArray(new Mob[0])) {
+			if (mob.alignment == Char.Alignment.ENEMY) {
+				Buff.affect(mob, Paralysis.class, Float.MAX_VALUE);
+			}
+		}
+	}
+
+	private static void unfreezeAllEnemies() {
+		if (Dungeon.level == null) return;
+		for (Mob mob : Dungeon.level.mobs.toArray(new Mob[0])) {
+			if (mob.alignment == Char.Alignment.ENEMY) {
+				mob.buff(Paralysis.class);
+				if (mob.buff(Paralysis.class) != null) {
+					mob.buff(Paralysis.class).detach();
+				}
+			}
+		}
 	}
 }

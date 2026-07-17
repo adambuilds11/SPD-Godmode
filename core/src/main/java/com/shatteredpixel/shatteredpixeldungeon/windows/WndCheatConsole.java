@@ -26,7 +26,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
@@ -37,9 +36,6 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Reflection;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 public class WndCheatConsole extends Window {
 
     private static final int WIDTH_P = 120;
@@ -47,12 +43,12 @@ public class WndCheatConsole extends Window {
     private static final int MARGIN = 2;
     private static final int BTN_HEIGHT = 16;
 
-    // All spawnable items referenced by simple class names for reflection
-    private static final Class<? extends Item>[] ITEM_CLASSES = new Class[]{
+    // Items grouped by category
+    private static final Category[] CATEGORIES = new Category[]{
+        new Category("Weapons", new Class[]{
             com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dagger.class,
             com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Gloves.class,
             com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Shortsword.class,
-            com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WornShortsword.class,
             com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Sword.class,
             com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Longsword.class,
             com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Greatsword.class,
@@ -69,11 +65,15 @@ public class WndCheatConsole extends Window {
             com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.RoundShield.class,
             com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Gauntlet.class,
             com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Greataxe.class,
+        }),
+        new Category("Armor", new Class[]{
             com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor.class,
             com.shatteredpixel.shatteredpixeldungeon.items.armor.LeatherArmor.class,
             com.shatteredpixel.shatteredpixeldungeon.items.armor.MailArmor.class,
             com.shatteredpixel.shatteredpixeldungeon.items.armor.ScaleArmor.class,
             com.shatteredpixel.shatteredpixeldungeon.items.armor.PlateArmor.class,
+        }),
+        new Category("Rings", new Class[]{
             com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAccuracy.class,
             com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfArcana.class,
             com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfElements.class,
@@ -86,6 +86,8 @@ public class WndCheatConsole extends Window {
             com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfSharpshooting.class,
             com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTenacity.class,
             com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth.class,
+        }),
+        new Category("Potions", new Class[]{
             com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing.class,
             com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength.class,
             com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfExperience.class,
@@ -98,6 +100,8 @@ public class WndCheatConsole extends Window {
             com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfParalyticGas.class,
             com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfFrost.class,
             com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfPurity.class,
+        }),
+        new Category("Scrolls", new Class[]{
             com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade.class,
             com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify.class,
             com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping.class,
@@ -110,6 +114,8 @@ public class WndCheatConsole extends Window {
             com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRetribution.class,
             com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRemoveCurse.class,
             com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTransmutation.class,
+        }),
+        new Category("Artifacts", new Class[]{
             com.shatteredpixel.shatteredpixeldungeon.items.artifacts.SandalsOfNature.class,
             com.shatteredpixel.shatteredpixeldungeon.items.artifacts.ChaliceOfBlood.class,
             com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HornOfPlenty.class,
@@ -122,8 +128,11 @@ public class WndCheatConsole extends Window {
             com.shatteredpixel.shatteredpixeldungeon.items.artifacts.AlchemistsToolkit.class,
             com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows.class,
             com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome.class,
+        }),
+        new Category("Misc", new Class[]{
             com.shatteredpixel.shatteredpixeldungeon.items.food.Food.class,
             com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb.class,
+        }),
     };
 
     private static final Class<? extends Mob>[] MOB_CLASSES = new Class[]{
@@ -151,20 +160,22 @@ public class WndCheatConsole extends Window {
 
         float pos = title.bottom() + 2 * MARGIN;
 
-        // Spawn Item button
-        RedButton btnItems = new RedButton("Spawn Item") {
-            @Override
-            protected void onClick() {
-                showItemPicker();
-            }
-        };
-        btnItems.icon(Icons.get(Icons.BACKPACK));
-        btnItems.setRect(0, pos, width, BTN_HEIGHT);
-        add(btnItems);
-        pos += BTN_HEIGHT + MARGIN;
+        // Spawn Item by category
+        for (final Category cat : CATEGORIES) {
+            RedButton btn = new RedButton(cat.name) {
+                @Override
+                protected void onClick() {
+                    showItemCategory(cat);
+                }
+            };
+            btn.icon(Icons.get(Icons.BACKPACK));
+            btn.setRect(0, pos, width, BTN_HEIGHT);
+            add(btn);
+            pos += BTN_HEIGHT + MARGIN;
+        }
 
         // Spawn Mob buttons
-        RedButton btnMobFoe = new RedButton("Spawn Mob (Foe)") {
+        RedButton btnMobFoe = new RedButton("Mob (Foe)") {
             @Override
             protected void onClick() {
                 showMobPicker(Char.Alignment.ENEMY);
@@ -174,7 +185,7 @@ public class WndCheatConsole extends Window {
         btnMobFoe.setRect(0, pos, (width - MARGIN) / 2, BTN_HEIGHT);
         add(btnMobFoe);
 
-        RedButton btnMobAlly = new RedButton("Spawn Mob (Ally)") {
+        RedButton btnMobAlly = new RedButton("Mob (Ally)") {
             @Override
             protected void onClick() {
                 showMobPicker(Char.Alignment.ALLY);
@@ -188,21 +199,22 @@ public class WndCheatConsole extends Window {
         resize(width, (int) pos);
     }
 
-    private void showItemPicker() {
-        final String[] names = new String[ITEM_CLASSES.length];
-        for (int i = 0; i < ITEM_CLASSES.length; i++) {
+    // Shows a WndOptions with the items in this category (max ~19 items, fits screen)
+    private void showItemCategory(final Category cat) {
+        final String[] names = new String[cat.classes.length];
+        for (int i = 0; i < cat.classes.length; i++) {
             try {
-                Item item = Reflection.newInstance(ITEM_CLASSES[i]);
+                Item item = Reflection.newInstance(cat.classes[i]);
                 names[i] = item.name();
             } catch (Exception e) {
-                names[i] = ITEM_CLASSES[i].getSimpleName();
+                names[i] = cat.classes[i].getSimpleName();
             }
         }
 
-        GameScene.show(new WndOptions("Select Item", "Click to spawn:", names) {
+        GameScene.show(new WndOptions("Select " + cat.name, "Click to spawn:", names) {
             @Override
             protected void onSelect(int index) {
-                spawnItem(ITEM_CLASSES[index]);
+                spawnItem(cat.classes[index]);
             }
         });
     }
@@ -233,11 +245,9 @@ public class WndCheatConsole extends Window {
             if (Dungeon.hero != null && Dungeon.hero.isAlive()) {
                 if (item.doPickUp(Dungeon.hero)) {
                     GLog.p("Spawned " + item.name() + " - added to inventory");
-                } else {
-                    if (Dungeon.level != null) {
-                        Dungeon.level.drop(item, Dungeon.hero.pos).sprite.drop();
-                        GLog.i("Spawned " + item.name() + " at your feet");
-                    }
+                } else if (Dungeon.level != null) {
+                    Dungeon.level.drop(item, Dungeon.hero.pos).sprite.drop();
+                    GLog.i("Spawned " + item.name() + " at your feet");
                 }
             }
         } catch (Exception e) {
@@ -274,6 +284,17 @@ public class WndCheatConsole extends Window {
             GLog.i("Spawned " + (alignment == Char.Alignment.ALLY ? "ally " : "foe ") + mob.name());
         } catch (Exception e) {
             GLog.n("Failed to spawn mob!");
+        }
+    }
+
+    private static class Category {
+        String name;
+        Class<? extends Item>[] classes;
+
+        @SuppressWarnings("unchecked")
+        Category(String name, Class<?>... classes) {
+            this.name = name;
+            this.classes = (Class<? extends Item>[]) classes;
         }
     }
 }

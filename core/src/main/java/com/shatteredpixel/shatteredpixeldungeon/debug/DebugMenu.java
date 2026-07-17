@@ -7,4 +7,5 @@ public class DebugMenu {
     public static boolean revealMap = false;
     public static boolean infiniteGold = false;
     public static boolean knockback = false;
+    public static boolean freezeEnemies = false;
 }
