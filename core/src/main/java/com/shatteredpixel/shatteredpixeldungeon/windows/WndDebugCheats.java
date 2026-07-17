@@ -37,7 +37,6 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.watabou.utils.PathFinder;
 
 public class WndDebugCheats extends Window {
 
@@ -46,6 +45,8 @@ public class WndDebugCheats extends Window {
 
 	private static final int MARGIN = 2;
 	private static final int BTN_HEIGHT = 16;
+
+	private static CellSelector.Listener teleportListener;
 
 	public WndDebugCheats() {
 		super();
@@ -171,21 +172,21 @@ public class WndDebugCheats extends Window {
 		add(cbFreeze);
 		pos += BTN_HEIGHT + MARGIN;
 
-		// Teleport
+		// Teleport to Cell
 		RedButton btnTeleport = new RedButton("Teleport to Cell") {
 			@Override
 			protected void onClick() {
 				hide();
-				Dungeon.hero.busy();
-				GLog.i("Tap a walkable cell to teleport there");
-				GameScene.selectCell(new CellSelector.Listener() {
+				GLog.i("Tap a cell to teleport there");
+				teleportListener = new CellSelector.Listener() {
 					@Override
 					public void onSelect(Integer cell) {
 						if (cell != null && Dungeon.level != null
 								&& (Dungeon.level.passable[cell] || Dungeon.level.avoid[cell])) {
 							ScrollOfTeleportation.appear(Dungeon.hero, cell);
-							Dungeon.hero.spendAndNext(0);
-							Dungeon.hero.next();
+							Dungeon.observe();
+							GameScene.updateFog();
+							GLog.p("Teleported!");
 						} else if (cell != null) {
 							GLog.n("Cannot teleport to that cell - not walkable");
 						}
@@ -195,7 +196,8 @@ public class WndDebugCheats extends Window {
 					public String prompt() {
 						return "Choose teleport destination";
 					}
-				});
+				};
+				GameScene.selectCell(teleportListener);
 			}
 		};
 		btnTeleport.setRect(0, pos, width, BTN_HEIGHT);
@@ -229,7 +231,6 @@ public class WndDebugCheats extends Window {
 		if (Dungeon.level == null) return;
 		for (Mob mob : Dungeon.level.mobs.toArray(new Mob[0])) {
 			if (mob.alignment == Char.Alignment.ENEMY) {
-				mob.buff(Paralysis.class);
 				if (mob.buff(Paralysis.class) != null) {
 					mob.buff(Paralysis.class).detach();
 				}
