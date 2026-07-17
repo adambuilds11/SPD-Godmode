@@ -31,8 +31,10 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
+import com.shatteredpixel.shatteredpixeldungeon.ui.ScrollPane;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.noosa.ui.Component;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Reflection;
 
@@ -199,46 +201,113 @@ public class WndCheatConsole extends Window {
         resize(width, (int) pos);
     }
 
-    // Shows a WndOptions with the items in this category (max ~19 items, fits screen)
     private void showItemCategory(final Category cat) {
-        final String[] names = new String[cat.classes.length];
-        for (int i = 0; i < cat.classes.length; i++) {
-            try {
-                Item item = Reflection.newInstance(cat.classes[i]);
-                names[i] = item.name();
-            } catch (Exception e) {
-                names[i] = cat.classes[i].getSimpleName();
-            }
-        }
-
-        GameScene.show(new WndOptions("Select " + cat.name, "Click to spawn:", names) {
-            @Override
-            protected void onSelect(int index) {
-                spawnItem(cat.classes[index]);
-            }
-        });
+        // Build a scrollable window with all items in this category
+        int width = PixelScene.landscape() ? WIDTH_L : WIDTH_P;
+        GameScene.show(new ScrollingItemPicker(cat, width));
     }
 
     private void showMobPicker(final Char.Alignment alignment) {
-        final String[] names = new String[MOB_CLASSES.length];
-        for (int i = 0; i < MOB_CLASSES.length; i++) {
-            try {
-                Mob mob = Reflection.newInstance(MOB_CLASSES[i]);
-                names[i] = mob.name();
-            } catch (Exception e) {
-                names[i] = MOB_CLASSES[i].getSimpleName();
-            }
-        }
-
-        GameScene.show(new WndOptions("Select Mob (" + (alignment == Char.Alignment.ENEMY ? "Foe" : "Ally") + ")", "Click to spawn:", names) {
-            @Override
-            protected void onSelect(int index) {
-                spawnMob(MOB_CLASSES[index], alignment);
-            }
-        });
+        int width = PixelScene.landscape() ? WIDTH_L : WIDTH_P;
+        GameScene.show(new ScrollingMobPicker(alignment, width));
     }
 
-    private void spawnItem(Class<? extends Item> cls) {
+    // Static nested scrollable window for items - no Window reference leak
+    private static class ScrollingItemPicker extends Window {
+        ScrollingItemPicker(final Category cat, int width) {
+            RenderedTextBlock title = PixelScene.renderTextBlock("Select " + cat.name, 9);
+            title.hardlight(TITLE_COLOR);
+            title.setPos(MARGIN, MARGIN);
+            title.maxWidth(width - MARGIN * 2);
+            add(title);
+
+            // Build button list in a Component
+            Component listContent = new Component();
+            float y = MARGIN;
+            for (int i = 0; i < cat.classes.length; i++) {
+                final Class<? extends Item> cls = cat.classes[i];
+                String btnName;
+                try {
+                    Item item = Reflection.newInstance(cls);
+                    btnName = item.name();
+                } catch (Exception e) {
+                    btnName = cls.getSimpleName();
+                }
+                RedButton btn = new RedButton(btnName) {
+                    @Override
+                    protected void onClick() {
+                        spawnItemStatic(cls);
+                        hide();
+                    }
+                };
+                btn.setRect(0, y, width, BTN_HEIGHT);
+                btn.multiline = true;
+                listContent.add(btn);
+                y += BTN_HEIGHT + MARGIN;
+            }
+            listContent.setSize(width, y);
+
+            // Scroll pane with fixed height
+            int maxHeight = (int)(PixelScene.uiCamera.height * 0.75f);
+            int listHeight = Math.min((int)y + MARGIN, maxHeight - 20);
+
+            ScrollPane scrollPane = new ScrollPane(listContent);
+            add(scrollPane);
+            scrollPane.setRect(0, title.bottom() + MARGIN, width, listHeight);
+
+            resize(width, listHeight + (int)title.bottom() + MARGIN * 2);
+        }
+    }
+
+    // Static nested scrollable window for mobs
+    private static class ScrollingMobPicker extends Window {
+        ScrollingMobPicker(final Char.Alignment alignment, int width) {
+            String mode = (alignment == Char.Alignment.ENEMY) ? "Foe" : "Ally";
+            RenderedTextBlock title = PixelScene.renderTextBlock("Select Mob (" + mode + ")", 9);
+            title.hardlight(TITLE_COLOR);
+            title.setPos(MARGIN, MARGIN);
+            title.maxWidth(width - MARGIN * 2);
+            add(title);
+
+            Component listContent = new Component();
+            float y = MARGIN;
+            for (int i = 0; i < MOB_CLASSES.length; i++) {
+                final Class<? extends Mob> cls = MOB_CLASSES[i];
+                final Char.Alignment align = alignment;
+                String btnName;
+                try {
+                    Mob mob = Reflection.newInstance(cls);
+                    btnName = mob.name();
+                } catch (Exception e) {
+                    btnName = cls.getSimpleName();
+                }
+                RedButton btn = new RedButton(btnName) {
+                    @Override
+                    protected void onClick() {
+                        spawnMobStatic(cls, align);
+                        hide();
+                    }
+                };
+                btn.setRect(0, y, width, BTN_HEIGHT);
+                btn.multiline = true;
+                listContent.add(btn);
+                y += BTN_HEIGHT + MARGIN;
+            }
+            listContent.setSize(width, y);
+
+            int maxHeight = (int)(PixelScene.uiCamera.height * 0.75f);
+            int listHeight = Math.min((int)y + MARGIN, maxHeight - 20);
+
+            ScrollPane scrollPane = new ScrollPane(listContent);
+            add(scrollPane);
+            scrollPane.setRect(0, title.bottom() + MARGIN, width, listHeight);
+
+            resize(width, listHeight + (int)title.bottom() + MARGIN * 2);
+        }
+    }
+
+    // Static methods for spawning - no Window reference needed
+    private static void spawnItemStatic(Class<? extends Item> cls) {
         try {
             Item item = Reflection.newInstance(cls);
             item.identify();
@@ -255,7 +324,7 @@ public class WndCheatConsole extends Window {
         }
     }
 
-    private void spawnMob(Class<? extends Mob> cls, Char.Alignment alignment) {
+    private static void spawnMobStatic(Class<? extends Mob> cls, Char.Alignment alignment) {
         try {
             Mob mob = Reflection.newInstance(cls);
             int heroPos = Dungeon.hero.pos;
