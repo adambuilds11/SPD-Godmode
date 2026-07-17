@@ -504,18 +504,24 @@ public class Hero extends Char {
 			// Normalize direction
 			if (dx != 0) dx = dx > 0 ? 1 : -1;
 			if (dy != 0) dy = dy > 0 ? 1 : -1;
-			// Try to push enemy 2 cells in that direction
-			for (int cells = 1; cells <= 2; cells++) {
+			// Try to push enemy 3 cells in that direction
+			int pushed = 0;
+			for (int cells = 1; cells <= 3; cells++) {
 				int targetCell = enemyPos + dx * cells + dy * cells * Dungeon.level.width();
 				if (targetCell >= 0 && targetCell < Dungeon.level.length()
 						&& (Dungeon.level.passable[targetCell] || Dungeon.level.avoid[targetCell])
 						&& Actor.findChar(targetCell) == null) {
 					enemy.pos = targetCell;
 					enemy.sprite.place(targetCell);
-					if (cells == 2) break;
+					pushed = cells;
+					enemy.next(); // force enemy to recalculate its turn
 				} else {
 					break;
 				}
+			}
+			// If we pushed the enemy, brief stun to prevent immediate return
+			if (pushed > 0) {
+				Buff.affect(enemy, Paralysis.class, pushed * 0.5f);
 			}
 		}
 

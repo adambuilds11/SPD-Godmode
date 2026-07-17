@@ -21,9 +21,12 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.windows;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.debug.DebugMenu;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.CheckBox;
+import com.shatteredpixel.shatteredpixeldungeon.ui.CurrencyIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 
@@ -54,6 +57,9 @@ public class WndDebugCheats extends Window {
 			protected void onClick() {
 				super.onClick();
 				DebugMenu.godMode = checked();
+				if (DebugMenu.godMode && Dungeon.hero != null) {
+					Dungeon.hero.HP = Dungeon.hero.HT;
+				}
 			}
 		};
 		cbGodMode.checked(DebugMenu.godMode);
@@ -93,6 +99,14 @@ public class WndDebugCheats extends Window {
 			protected void onClick() {
 				super.onClick();
 				DebugMenu.revealMap = checked();
+				if (DebugMenu.revealMap && Dungeon.level != null) {
+					for (int i = 0; i < Dungeon.level.length(); i++) {
+						Dungeon.level.mapped[i] = true;
+						Dungeon.level.visited[i] = true;
+					}
+					Dungeon.observe();
+					GameScene.updateFog();
+				}
 			}
 		};
 		cbRevealMap.checked(DebugMenu.revealMap);
@@ -106,6 +120,10 @@ public class WndDebugCheats extends Window {
 			protected void onClick() {
 				super.onClick();
 				DebugMenu.infiniteGold = checked();
+				if (DebugMenu.infiniteGold) {
+					Dungeon.gold = 999999;
+					CurrencyIndicator.showGold = true;
+				}
 			}
 		};
 		cbInfiniteGold.checked(DebugMenu.infiniteGold);
