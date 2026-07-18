@@ -1524,6 +1524,7 @@ public class Hero extends Char {
 	}
 	
 	public void rest( boolean fullRest ) {
+		resting = fullRest;
 		spendAndNextConstant( TIME_TO_REST );
 		if (hasTalent(Talent.HOLD_FAST)){
 			Buff.affect(this, HoldFast.class).pos = pos;
@@ -1536,7 +1537,6 @@ public class Hero extends Char {
 				sprite.showStatus(CharSprite.DEFAULT, Messages.get(this, "wait"));
 			}
 		}
-		resting = fullRest;
 	}
 	
 	@Override
