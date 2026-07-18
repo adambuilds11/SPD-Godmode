@@ -202,30 +202,30 @@ public class WndCheatConsole extends Window {
     }
 
     private void showItemCategory(final Category cat) {
-        // Build a scrollable window with all items in this category
         int width = PixelScene.landscape() ? WIDTH_L : WIDTH_P;
-        GameScene.show(new ScrollingItemPicker(cat, width));
+        GameScene.show(new ScrollingListWindow(cat.name, cat.classes, width));
     }
 
     private void showMobPicker(final Char.Alignment alignment) {
         int width = PixelScene.landscape() ? WIDTH_L : WIDTH_P;
-        GameScene.show(new ScrollingMobPicker(alignment, width));
+        String mode = (alignment == Char.Alignment.ENEMY) ? "Foe" : "Ally";
+        GameScene.show(new ScrollingMobWindow(mode, alignment, width));
     }
 
-    // Static nested scrollable window for items - no Window reference leak
-    private static class ScrollingItemPicker extends Window {
-        ScrollingItemPicker(final Category cat, int width) {
-            RenderedTextBlock title = PixelScene.renderTextBlock("Select " + cat.name, 9);
+    // Static nested scrollable window that follows WndKeyBindings pattern
+    private static class ScrollingListWindow extends Window {
+        ScrollingListWindow(String titleName, Class<? extends Item>[] classes, int width) {
+            RenderedTextBlock title = PixelScene.renderTextBlock("Select " + titleName, 9);
             title.hardlight(TITLE_COLOR);
             title.setPos(MARGIN, MARGIN);
             title.maxWidth(width - MARGIN * 2);
             add(title);
 
-            // Build button list in a Component
-            Component listContent = new Component();
+            // Build all buttons in a content Component
+            Component content = new Component();
             float y = MARGIN;
-            for (int i = 0; i < cat.classes.length; i++) {
-                final Class<? extends Item> cls = cat.classes[i];
+            for (int i = 0; i < classes.length; i++) {
+                final Class<? extends Item> cls = classes[i];
                 String btnName;
                 try {
                     Item item = Reflection.newInstance(cls);
@@ -236,40 +236,60 @@ public class WndCheatConsole extends Window {
                 RedButton btn = new RedButton(btnName) {
                     @Override
                     protected void onClick() {
-                        spawnItemStatic(cls);
+                        spawnItem(cls);
                         hide();
                     }
                 };
                 btn.setRect(0, y, width, BTN_HEIGHT);
                 btn.multiline = true;
-                listContent.add(btn);
+                content.add(btn);
                 y += BTN_HEIGHT + MARGIN;
             }
-            listContent.setSize(width, y);
+            content.setSize(width, y);
 
-            // Scroll pane with fixed height
+            ScrollPane pane = new ScrollPane(content);
+            add(pane);
+
+            // Calculate window height (75% of screen)
             int maxHeight = (int)(PixelScene.uiCamera.height * 0.75f);
-            int listHeight = Math.min((int)y + MARGIN, maxHeight - 20);
+            int totalContentHeight = (int)y + MARGIN * 4;
+            int windowHeight = Math.min(totalContentHeight, maxHeight);
+            int titleBottom = (int)title.bottom() + MARGIN * 2;
 
-            ScrollPane scrollPane = new ScrollPane(listContent);
-            add(scrollPane);
-            scrollPane.setRect(0, title.bottom() + MARGIN, width, listHeight);
+            // Resize FIRST (like WndKeyBindings does)
+            resize(width, windowHeight);
 
-            resize(width, listHeight + (int)title.bottom() + MARGIN * 2);
+            // THEN position the scroll pane
+            pane.setRect(0, titleBottom, width, windowHeight - titleBottom);
+        }
+
+        private static void spawnItem(Class<? extends Item> cls) {
+            try {
+                Item item = Reflection.newInstance(cls);
+                item.identify();
+                if (Dungeon.hero != null && Dungeon.hero.isAlive()) {
+                    if (item.doPickUp(Dungeon.hero)) {
+                        GLog.p("Spawned " + item.name() + " - added to inventory");
+                    } else if (Dungeon.level != null) {
+                        Dungeon.level.drop(item, Dungeon.hero.pos).sprite.drop();
+                        GLog.i("Spawned " + item.name() + " at your feet");
+                    }
+                }
+            } catch (Exception e) {
+                GLog.n("Failed to spawn item!");
+            }
         }
     }
 
-    // Static nested scrollable window for mobs
-    private static class ScrollingMobPicker extends Window {
-        ScrollingMobPicker(final Char.Alignment alignment, int width) {
-            String mode = (alignment == Char.Alignment.ENEMY) ? "Foe" : "Ally";
+    private static class ScrollingMobWindow extends Window {
+        ScrollingMobWindow(String mode, Char.Alignment alignment, int width) {
             RenderedTextBlock title = PixelScene.renderTextBlock("Select Mob (" + mode + ")", 9);
             title.hardlight(TITLE_COLOR);
             title.setPos(MARGIN, MARGIN);
             title.maxWidth(width - MARGIN * 2);
             add(title);
 
-            Component listContent = new Component();
+            Component content = new Component();
             float y = MARGIN;
             for (int i = 0; i < MOB_CLASSES.length; i++) {
                 final Class<? extends Mob> cls = MOB_CLASSES[i];
@@ -284,77 +304,64 @@ public class WndCheatConsole extends Window {
                 RedButton btn = new RedButton(btnName) {
                     @Override
                     protected void onClick() {
-                        spawnMobStatic(cls, align);
+                        spawnMob(cls, align);
                         hide();
                     }
                 };
                 btn.setRect(0, y, width, BTN_HEIGHT);
                 btn.multiline = true;
-                listContent.add(btn);
+                content.add(btn);
                 y += BTN_HEIGHT + MARGIN;
             }
-            listContent.setSize(width, y);
+            content.setSize(width, y);
+
+            ScrollPane pane = new ScrollPane(content);
+            add(pane);
 
             int maxHeight = (int)(PixelScene.uiCamera.height * 0.75f);
-            int listHeight = Math.min((int)y + MARGIN, maxHeight - 20);
+            int totalContentHeight = (int)y + MARGIN * 4;
+            int windowHeight = Math.min(totalContentHeight, maxHeight);
+            int titleBottom = (int)title.bottom() + MARGIN * 2;
 
-            ScrollPane scrollPane = new ScrollPane(listContent);
-            add(scrollPane);
-            scrollPane.setRect(0, title.bottom() + MARGIN, width, listHeight);
-
-            resize(width, listHeight + (int)title.bottom() + MARGIN * 2);
+            resize(width, windowHeight);
+            pane.setRect(0, titleBottom, width, windowHeight - titleBottom);
         }
-    }
 
-    // Static methods for spawning - no Window reference needed
-    private static void spawnItemStatic(Class<? extends Item> cls) {
-        try {
-            Item item = Reflection.newInstance(cls);
-            item.identify();
-            if (Dungeon.hero != null && Dungeon.hero.isAlive()) {
-                if (item.doPickUp(Dungeon.hero)) {
-                    GLog.p("Spawned " + item.name() + " - added to inventory");
-                } else if (Dungeon.level != null) {
-                    Dungeon.level.drop(item, Dungeon.hero.pos).sprite.drop();
-                    GLog.i("Spawned " + item.name() + " at your feet");
+        private static void spawnMob(Class<? extends Mob> cls, Char.Alignment alignment) {
+            try {
+                Mob mob = Reflection.newInstance(cls);
+                int heroPos = Dungeon.hero.pos;
+                int spawnPos = heroPos;
+                for (int i : PathFinder.NEIGHBOURS8) {
+                    int cell = heroPos + i;
+                    if (Dungeon.level != null && cell >= 0 && cell < Dungeon.level.length()
+                            && Dungeon.level.passable[cell]
+                            && Actor.findChar(cell) == null) {
+                        spawnPos = cell;
+                        break;
+                    }
                 }
+                mob.pos = spawnPos;
+                mob.alignment = alignment;
+                if (alignment == Char.Alignment.ALLY) {
+                    mob.clearEnemy();
+                } else {
+                    mob.aggro(Dungeon.hero);
+                }
+                if (Dungeon.level != null) {
+                    Dungeon.level.mobs.add(mob);
+                    GameScene.addSprite(mob);
+                    Actor.addDelayed(mob, 0);
+                }
+                GLog.i("Spawned " + (alignment == Char.Alignment.ALLY ? "ally " : "foe ") + mob.name());
+            } catch (Exception e) {
+                GLog.n("Failed to spawn mob!");
             }
-        } catch (Exception e) {
-            GLog.n("Failed to spawn item!");
         }
     }
 
-    private static void spawnMobStatic(Class<? extends Mob> cls, Char.Alignment alignment) {
-        try {
-            Mob mob = Reflection.newInstance(cls);
-            int heroPos = Dungeon.hero.pos;
-            int spawnPos = heroPos;
-            for (int i : PathFinder.NEIGHBOURS8) {
-                int cell = heroPos + i;
-                if (Dungeon.level != null && cell >= 0 && cell < Dungeon.level.length()
-                        && Dungeon.level.passable[cell]
-                        && Actor.findChar(cell) == null) {
-                    spawnPos = cell;
-                    break;
-                }
-            }
-            mob.pos = spawnPos;
-            mob.alignment = alignment;
-            if (alignment == Char.Alignment.ALLY) {
-                mob.clearEnemy();
-            } else {
-                mob.aggro(Dungeon.hero);
-            }
-            if (Dungeon.level != null) {
-                Dungeon.level.mobs.add(mob);
-                GameScene.addSprite(mob);
-                Actor.addDelayed(mob, 0);
-            }
-            GLog.i("Spawned " + (alignment == Char.Alignment.ALLY ? "ally " : "foe ") + mob.name());
-        } catch (Exception e) {
-            GLog.n("Failed to spawn mob!");
-        }
-    }
+    private void spawnItem(Class<? extends Item> cls) {}  // unused, static versions used in pickers
+    private void spawnMob(Class<? extends Mob> cls, Char.Alignment alignment) {}
 
     private static class Category {
         String name;
