@@ -49,6 +49,12 @@ public class WndDebugCheats extends Window {
 	public WndDebugCheats() {
 		super();
 
+		// If game state is not ready (e.g. during save restore), close immediately
+		if (Dungeon.hero == null || Dungeon.level == null) {
+			hide();
+			return;
+		}
+
 		int width = PixelScene.landscape() ? WIDTH_L : WIDTH_P;
 
 		RenderedTextBlock title = PixelScene.renderTextBlock("Cheat Menu", 9);

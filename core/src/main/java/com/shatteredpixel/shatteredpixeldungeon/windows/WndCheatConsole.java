@@ -152,6 +152,12 @@ public class WndCheatConsole extends Window {
     public WndCheatConsole() {
         super();
 
+        // If game state is not ready (e.g. during save restore), be a harmless empty window
+        // that will be cleaned up on next scene transition
+        if (Dungeon.hero == null || Dungeon.level == null) {
+            return;
+        }
+
         int width = PixelScene.landscape() ? WIDTH_L : WIDTH_P;
 
         RenderedTextBlock title = PixelScene.renderTextBlock("Cheat Console", 9);
