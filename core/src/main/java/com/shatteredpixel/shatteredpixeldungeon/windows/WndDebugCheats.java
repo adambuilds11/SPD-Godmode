@@ -24,7 +24,6 @@ package com.shatteredpixel.shatteredpixeldungeon.windows;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.debug.DebugMenu;
@@ -36,8 +35,10 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.CheckBox;
 import com.shatteredpixel.shatteredpixeldungeon.ui.CurrencyIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
+import com.shatteredpixel.shatteredpixeldungeon.ui.ScrollPane;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.noosa.ui.Component;
 
 public class WndDebugCheats extends Window {
 
@@ -47,13 +48,14 @@ public class WndDebugCheats extends Window {
 	private static final int MARGIN = 2;
 	private static final int BTN_HEIGHT = 16;
 
-	// Track original gold for toggle off
 	private static int originalGold = 0;
 
 	public WndDebugCheats() {
 		super();
 
+		// If game state is not ready (save restore), create tiny harmless window
 		if (Dungeon.hero == null || Dungeon.level == null) {
+			resize(1, 1);
 			return;
 		}
 
@@ -65,13 +67,9 @@ public class WndDebugCheats extends Window {
 		title.maxWidth(width - MARGIN * 2);
 		add(title);
 
-		float pos = title.bottom() + 2 * MARGIN;
-
-		// === PERSISTENT TOGGLES ===
-		RenderedTextBlock toggleLabel = PixelScene.renderTextBlock("_Persistent Toggles_", 6);
-		toggleLabel.setPos(MARGIN, pos);
-		add(toggleLabel);
-		pos = toggleLabel.bottom() + MARGIN;
+		// Build all content into a scrollable Component
+		Component content = new Component();
+		float pos = MARGIN;
 
 		// God Mode toggle
 		CheckBox cbGodMode = new CheckBox("God Mode") {
@@ -86,7 +84,7 @@ public class WndDebugCheats extends Window {
 		};
 		cbGodMode.checked(DebugMenu.godMode);
 		cbGodMode.setRect(0, pos, width, BTN_HEIGHT);
-		add(cbGodMode);
+		content.add(cbGodMode);
 		pos += BTN_HEIGHT + MARGIN;
 
 		// One Hit Kill toggle
@@ -99,7 +97,7 @@ public class WndDebugCheats extends Window {
 		};
 		cbOneHit.checked(DebugMenu.oneHitKill);
 		cbOneHit.setRect(0, pos, width, BTN_HEIGHT);
-		add(cbOneHit);
+		content.add(cbOneHit);
 		pos += BTN_HEIGHT + MARGIN;
 
 		// Infinite Speed toggle
@@ -112,7 +110,7 @@ public class WndDebugCheats extends Window {
 		};
 		cbInfiniteSpeed.checked(DebugMenu.infiniteSpeed);
 		cbInfiniteSpeed.setRect(0, pos, width, BTN_HEIGHT);
-		add(cbInfiniteSpeed);
+		content.add(cbInfiniteSpeed);
 		pos += BTN_HEIGHT + MARGIN;
 
 		// Knockback toggle
@@ -125,7 +123,7 @@ public class WndDebugCheats extends Window {
 		};
 		cbKnockback.checked(DebugMenu.knockback);
 		cbKnockback.setRect(0, pos, width, BTN_HEIGHT);
-		add(cbKnockback);
+		content.add(cbKnockback);
 		pos += BTN_HEIGHT + MARGIN;
 
 		// Reveal Map toggle
@@ -146,7 +144,7 @@ public class WndDebugCheats extends Window {
 		};
 		cbRevealMap.checked(DebugMenu.revealMap);
 		cbRevealMap.setRect(0, pos, width, BTN_HEIGHT);
-		add(cbRevealMap);
+		content.add(cbRevealMap);
 		pos += BTN_HEIGHT + MARGIN;
 
 		// Infinite Gold toggle
@@ -167,16 +165,10 @@ public class WndDebugCheats extends Window {
 		};
 		cbInfiniteGold.checked(DebugMenu.infiniteGold);
 		cbInfiniteGold.setRect(0, pos, width, BTN_HEIGHT);
-		add(cbInfiniteGold);
+		content.add(cbInfiniteGold);
 		pos += BTN_HEIGHT + MARGIN;
 
-		// === ONE-SHOT ACTIONS ===
-		RenderedTextBlock actionLabel = PixelScene.renderTextBlock("_One-Shot Actions_", 6);
-		actionLabel.setPos(MARGIN, pos);
-		add(actionLabel);
-		pos = actionLabel.bottom() + MARGIN;
-
-		// Freeze Enemies (one-shot)
+		// Freeze Enemies
 		RedButton btnFreeze = new RedButton("Freeze Enemies") {
 			@Override
 			protected void onClick() {
@@ -190,9 +182,9 @@ public class WndDebugCheats extends Window {
 			}
 		};
 		btnFreeze.setRect(0, pos, (width - MARGIN) / 2, BTN_HEIGHT);
-		add(btnFreeze);
+		content.add(btnFreeze);
 
-		RedButton btnUnfreeze = new RedButton("Unfreeze Enemies") {
+		RedButton btnUnfreeze = new RedButton("Unfreeze") {
 			@Override
 			protected void onClick() {
 				if (Dungeon.level == null) return;
@@ -207,7 +199,7 @@ public class WndDebugCheats extends Window {
 			}
 		};
 		btnUnfreeze.setRect(btnFreeze.right() + MARGIN, pos, (width - MARGIN) / 2, BTN_HEIGHT);
-		add(btnUnfreeze);
+		content.add(btnUnfreeze);
 		pos += BTN_HEIGHT + MARGIN;
 
 		// Heal to Full
@@ -216,46 +208,14 @@ public class WndDebugCheats extends Window {
 			protected void onClick() {
 				if (Dungeon.hero != null) {
 					Dungeon.hero.HP = Dungeon.hero.HT;
-					Dungeon.hero.sprite.showStatus(CharSprite.POSITIVE, "HEALED");
-					GLog.p("Healed to full!");
+					GLog.p("Healed!");
 				}
 			}
 		};
-		btnHeal.setRect(0, pos, width, BTN_HEIGHT);
-		add(btnHeal);
-		pos += BTN_HEIGHT + MARGIN;
+		btnHeal.setRect(0, pos, (width - MARGIN) / 2, BTN_HEIGHT);
+		content.add(btnHeal);
 
-		// Level Up
-		RedButton btnLevelUp = new RedButton("Level Up") {
-			@Override
-			protected void onClick() {
-				if (Dungeon.hero != null && Dungeon.hero.lvl < 30) {
-					Dungeon.hero.earnExp(Dungeon.hero.maxExp() * 2, Dungeon.hero.getClass());
-					GLog.p("Leveled up!");
-				}
-			}
-		};
-		btnLevelUp.setRect(0, pos, (width - MARGIN) / 2, BTN_HEIGHT);
-		add(btnLevelUp);
-
-		// Max Level (30)
-		RedButton btnMaxLevel = new RedButton("Max Level (30)") {
-			@Override
-			protected void onClick() {
-				if (Dungeon.hero != null) {
-					while (Dungeon.hero.lvl < 30) {
-						Dungeon.hero.earnExp(Dungeon.hero.maxExp() * 2, Dungeon.hero.getClass());
-					}
-					GLog.p("Max level reached!");
-				}
-			}
-		};
-		btnMaxLevel.setRect(btnLevelUp.right() + MARGIN, pos, (width - MARGIN) / 2, BTN_HEIGHT);
-		add(btnMaxLevel);
-		pos += BTN_HEIGHT + MARGIN;
-
-		// Kill All Enemies
-		RedButton btnKillAll = new RedButton("Kill All Enemies") {
+		RedButton btnKillAll = new RedButton("Kill Enemies") {
 			@Override
 			protected void onClick() {
 				if (Dungeon.level == null) return;
@@ -264,24 +224,51 @@ public class WndDebugCheats extends Window {
 						mob.damage(mob.HP + 1000, this);
 					}
 				}
-				GLog.i("All enemies slain!");
+				GLog.i("All slain!");
 			}
 		};
-		btnKillAll.setRect(0, pos, width, BTN_HEIGHT);
-		add(btnKillAll);
+		btnKillAll.setRect(btnHeal.right() + MARGIN, pos, (width - MARGIN) / 2, BTN_HEIGHT);
+		content.add(btnKillAll);
 		pos += BTN_HEIGHT + MARGIN;
 
-		// Teleport to Cell
+		// Level Up
+		RedButton btnLevel = new RedButton("Level Up") {
+			@Override
+			protected void onClick() {
+				if (Dungeon.hero != null && Dungeon.hero.lvl < 30) {
+					Dungeon.hero.earnExp(Dungeon.hero.maxExp() * 2, Dungeon.hero.getClass());
+				}
+			}
+		};
+		btnLevel.setRect(0, pos, (width - MARGIN) / 2, BTN_HEIGHT);
+		content.add(btnLevel);
+
+		RedButton btnMax = new RedButton("Max Level") {
+			@Override
+			protected void onClick() {
+				if (Dungeon.hero != null) {
+					while (Dungeon.hero.lvl < 30) {
+						Dungeon.hero.earnExp(Dungeon.hero.maxExp() * 2, Dungeon.hero.getClass());
+					}
+					GLog.p("Max level!");
+				}
+			}
+		};
+		btnMax.setRect(btnLevel.right() + MARGIN, pos, (width - MARGIN) / 2, BTN_HEIGHT);
+		content.add(btnMax);
+		pos += BTN_HEIGHT + MARGIN;
+
+		// Teleport
 		RedButton btnTeleport = new RedButton("Teleport to Cell") {
 			@Override
 			protected void onClick() {
 				hide();
-				GLog.i("Tap a cell to teleport there");
+				GLog.i("Tap a cell to teleport");
 				GameScene.selectCell(new TeleportListener());
 			}
 		};
 		btnTeleport.setRect(0, pos, width, BTN_HEIGHT);
-		add(btnTeleport);
+		content.add(btnTeleport);
 		pos += BTN_HEIGHT + MARGIN;
 
 		// Cheat Console
@@ -292,10 +279,21 @@ public class WndDebugCheats extends Window {
 			}
 		};
 		btnConsole.setRect(0, pos, width, BTN_HEIGHT);
-		add(btnConsole);
+		content.add(btnConsole);
 		pos += BTN_HEIGHT + MARGIN;
 
-		resize(width, (int) (pos));
+		content.setSize(width, pos);
+
+		// Scroll pane for the whole content
+		int maxHeight = (int)(PixelScene.uiCamera.height * 0.85f);
+		int titleBottom = (int)title.bottom() + MARGIN * 2;
+		int scrollHeight = maxHeight - titleBottom;
+
+		ScrollPane pane = new ScrollPane(content);
+		add(pane);
+
+		resize(width, maxHeight);
+		pane.setRect(0, titleBottom, width, scrollHeight);
 	}
 
 	private static class TeleportListener extends CellSelector.Listener {
@@ -308,13 +306,12 @@ public class WndDebugCheats extends Window {
 				GameScene.updateFog();
 				GLog.p("Teleported!");
 			} else {
-				GLog.n("Cannot teleport to that cell - not walkable");
+				GLog.n("Not walkable");
 			}
 		}
-
 		@Override
 		public String prompt() {
-			return "Choose teleport destination";
+			return "Choose destination";
 		}
 	}
 }
